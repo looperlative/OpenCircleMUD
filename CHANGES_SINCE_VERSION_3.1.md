@@ -1,5 +1,12 @@
 # Summary of Changes Since `f82b7751`
 
+## Wizlist / Immlist Fixes (`src/limits.c`, `src/act.wizard.c`, `src/db.c`, `src/interpreter.c`)
+- Fixed `immlist`/`wizlist` not showing a player who had just reached (or lost) an immortal level: `run_autowiz()` spawns `bin/autowiz`, which reads levels from the player file, but it was being run *before* the character's new level was written there
+- `gain_exp()` and `gain_exp_regardless()` now `save_char()` before calling `run_autowiz()`; `do_advance()` calls `run_autowiz()` after `save_char(victim)` and now does so whenever immortal status *or* immortal rank changed (previously only on demotion out of immortality, so IMMORT -> GOD promotions did not move the name from `immlist` to `wizlist`)
+- `save_char()` now `fflush()`es the player file, so a saved record is immediately visible to external utilities such as `autowiz` instead of sitting in the stdio buffer until some later write flushed it
+- `run_autowiz()` runs `autowiz` synchronously (dropped the trailing `&`), so the following `reboot_wizlists()` re-reads the newly written files instead of racing the background process; the `Initiating autowiz.` message is now also written to the syslog, not just shown to online immortals
+- New `autowiz` command (`LVL_GRGOD`) regenerates and reloads `lib/text/wizlist` and `lib/text/immlist` on demand; help entry added to `wizhelp.hlp`
+
 ## Web-Based OLC (`src/webserver_olc.c`, `src/webserver_olc.h`, `lib/www/olc/`)
 - Full web-based OLC matching all in-game `medit`/`oedit`/`redit`/`zedit` capabilities, accessible via the existing libcivetweb server at `http://localhost:4445/olc/`
 - Thread-safe request/response queue: HTTP handlers (civetweb threads) enqueue requests and block on a per-request `pthread_cond_t`; the game loop drains the queue every 100ms heartbeat pulse without any lock held during MUD data access
@@ -26,6 +33,11 @@
 - **Char.Afflictions.List/Add/Remove** — tracks negative AFF-flag conditions (blind, cursed, poisoned, asleep, charmed) separately from spell defences; `Add` fires on first flag transition, `Remove` fires when the flag fully clears; full list sent on login/reconnect (`handler.c` `affect_to_char`/`affect_remove`, `interpreter.c`)
 - **Room.Players** — sends the list of other PCs in the room to `ch` on every room entry; `Room.Players.Add`/`Room.Players.Remove` notifies all other GMCP-enabled PCs in the room when someone arrives or departs (`handler.c` `char_to_room`/`char_from_room`)
 - **External.Discord.Status** — sends Discord Rich Presence data (`game`, `details` as level+class, `state` as current room name) on login and whenever `ch` changes rooms
+
+## GMCP.md corrections
+- `Char.Status`: documented the `alignnum` field (raw alignment value -1000 to 1000, JSON-encoded as a string) that was always sent but missing from the docs
+- `Comm.Channel.Text`: corrected gratz channel name from `"congratulate"` to `"congrat"` to match the code; added missing `"shout"` channel
+- `Char.Vitals` triggers: removed "regen tick" — normal HP/MP/MV regeneration in `point_update` does not call `gmcp_send_char_vitals`; food/thirst and poison cases are already covered by other listed triggers
 
 ## Locker System (`src/locker.c`, `src/locker.h`)
 - Players can create named personal storage lockers (`locker create <name>`)

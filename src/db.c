@@ -2439,6 +2439,8 @@ void save_char(struct char_data *ch)
 
   fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
   fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
+  /* Flush now so external utilities (autowiz, etc.) see the current record. */
+  fflush(player_fl);
 }
 
 

@@ -34,6 +34,7 @@ extern int circle_restrict;
 extern int load_into_inventory;
 extern int buf_switches, buf_largecount, buf_overflows;
 extern int top_of_p_table;
+extern int use_autowiz;
 
 /* for chars */
 extern const char *pc_class_types[];
@@ -81,6 +82,7 @@ ACMD(do_invis);
 ACMD(do_gecho);
 ACMD(do_poofset);
 ACMD(do_dc);
+ACMD(do_autowiz);
 ACMD(do_wizlock);
 ACMD(do_date);
 ACMD(do_last);
@@ -1288,12 +1290,17 @@ ACMD(do_advance)
      */
     REMOVE_BIT(PRF_FLAGS(victim), PRF_LOG1 | PRF_LOG2);
     REMOVE_BIT(PRF_FLAGS(victim), PRF_NOHASSLE | PRF_HOLYLIGHT);
-    run_autowiz();
   }
 
   gain_exp_regardless(victim,
 	 level_exp(GET_CLASS(victim), newlevel) - GET_EXP(victim));
   save_char(victim);
+
+  /* Rebuild the wizlist/immlist after the new level is on disk, whenever
+   * immortal status or immortal rank changed. */
+  if (oldlevel >= LVL_IMMORT || newlevel >= LVL_IMMORT)
+    run_autowiz();
+
   gmcp_send_char_status(victim);
   gmcp_send_char_vitals(victim);
 }
@@ -1504,6 +1511,19 @@ ACMD(do_dc)
     send_to_char(ch, "Connection #%d closed.\r\n", num_to_dc);
     log("(GC) Connection closed by %s.", GET_NAME(ch));
   }
+}
+
+
+
+ACMD(do_autowiz)
+{
+  if (!use_autowiz) {
+    send_to_char(ch, "Autowiz is disabled in the configuration.\r\n");
+    return;
+  }
+
+  send_to_char(ch, "Regenerating the wizlist and immlist.\r\n");
+  run_autowiz();
 }
 
 

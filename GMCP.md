@@ -80,7 +80,7 @@ Sent at login, on reconnect, on level-up, on any XP gain or loss, on alignment c
 
 ```json
 {"name":"Gandalf","class":"Magic User","level":12,"align":"good",
- "xp":45230,"xp_next":75000,"ac":-3}
+ "xp":45230,"xp_next":75000,"ac":-3,"alignnum":"500"}
 ```
 
 | Field | Type | Description |
@@ -92,12 +92,13 @@ Sent at login, on reconnect, on level-up, on any XP gain or loss, on alignment c
 | `xp` | int | Current experience points |
 | `xp_next` | int | Experience required to reach the next level |
 | `ac` | int | Armor class in display units (−10 to +10); lower is better. Includes DEX defensive bonus. Equivalent to the value shown by the `score` command. |
+| `alignnum` | string | Raw alignment value as a decimal string in the range `"-1000"` to `"1000"`. Positive = good, negative = evil. Note: the value is JSON-encoded as a string, not a number. |
 
 ---
 
 ### `Char.Vitals`
 
-Sent on: login, reconnect, each combat round (attacker and defender), every damage source via `damage()`, every healing spell via `mag_points()`, spell mana cost (success and fail paths), movement, god `restore`, regen tick, and whenever the food or thirst condition changes.
+Sent on: login, reconnect, each combat round (attacker and defender), every damage source via `damage()`, every healing spell via `mag_points()`, spell mana cost (success and fail paths), movement, god `restore`, and whenever the food or thirst condition changes.
 
 ```json
 {"hp":85,"hpmax":120,"mp":40,"mpmax":200,"mv":60,"mvmax":100,
@@ -295,9 +296,10 @@ Supported channels:
 | `ask` | `ask` command; sent to both sender and recipient |
 | `gsay` | Group say; sent to all group members including the speaker |
 | `gossip` | Gossip channel |
+| `shout` | Shout channel |
 | `holler` | Holler channel |
 | `auction` | Auction channel |
-| `congratulate` | Gratz channel |
+| `congrat` | Gratz channel |
 | `quest` | Quest channel |
 
 ---
@@ -388,7 +390,7 @@ Item IDs are the C pointer address of the `obj_data` structure cast to `unsigned
 | `Core.Goodbye` | Immediately before any socket close (quit, link-death, idle, god boot) |
 | `Char.StatusVars` | Login, reconnect |
 | `Char.Status` | Login, reconnect, level-up, any XP gain/loss, alignment change, equip/unequip, god `advance`/`set` |
-| `Char.Vitals` | Login, reconnect, combat round (both sides), any `damage()` call, healing spell, spell cast (mana cost), movement, god `restore`, regen tick, food/thirst condition change |
+| `Char.Vitals` | Login, reconnect, combat round (both sides), any `damage()` call, healing spell, spell cast (mana cost), movement, god `restore`, food/thirst condition change |
 | `Char.Afflictions.List` | Login, reconnect |
 | `Char.Afflictions.Add` | AFF flag transitions 0→1 (first spell holding that flag applied) |
 | `Char.Afflictions.Remove` | AFF flag transitions 1→0 (last spell holding that flag removed) |
@@ -402,7 +404,7 @@ Item IDs are the C pointer address of the `obj_data` structure cast to `unsigned
 | `Char.Defences.List` | Login, reconnect |
 | `Char.Defences.Add` | Spell affect applied (first instance of that spell type only) |
 | `Char.Defences.Remove` | Last instance of a spell affect removed (expiry, cure, death, god purge) |
-| `Comm.Channel.Text` | say, tell, whisper, ask, gsay, gossip, holler, auction, congratulate, quest |
+| `Comm.Channel.Text` | say, tell, whisper, ask, gsay, gossip, shout, holler, auction, congrat, quest |
 | `External.Discord.Status` | Login, reconnect, any `char_to_room()` call |
 
 ---

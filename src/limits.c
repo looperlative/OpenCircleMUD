@@ -228,7 +228,7 @@ void run_autowiz(void)
     char buf[256];
 
 #if defined(CIRCLE_UNIX)
-    res = snprintf(buf, sizeof(buf), "nice ../bin/autowiz %d %s %d %s %d &",
+    res = snprintf(buf, sizeof(buf), "nice ../bin/autowiz %d %s %d %s %d",
 	min_wizlist_lev, WIZLIST_FILE, LVL_IMMORT, IMMLIST_FILE, (int) getpid());
 #elif defined(CIRCLE_WINDOWS)
     res = snprintf(buf, sizeof(buf), "autowiz %d %s %d %s",
@@ -237,7 +237,7 @@ void run_autowiz(void)
 
     /* Abusing signed -> unsigned conversion to avoid '-1' check. */
     if (res < sizeof(buf)) {
-      mudlog(CMP, LVL_IMMORT, FALSE, "Initiating autowiz.");
+      mudlog(CMP, LVL_IMMORT, TRUE, "Initiating autowiz.");
       int ret = system(buf);
       ret = ret; // ret intentionally ignored
       reboot_wizlists();
@@ -282,8 +282,11 @@ void gain_exp(struct char_data *ch, int gain)
       set_title(ch, NULL);
       gmcp_send_char_status(ch);
       gmcp_send_char_vitals(ch);
-      if (GET_LEVEL(ch) >= LVL_IMMORT)
+      if (GET_LEVEL(ch) >= LVL_IMMORT) {
+        /* Save first: autowiz reads levels from the player file. */
+        save_char(ch);
         run_autowiz();
+      }
     } else {
       gmcp_send_char_status(ch);
     }
@@ -325,8 +328,11 @@ void gain_exp_regardless(struct char_data *ch, int gain)
       set_title(ch, NULL);
       gmcp_send_char_status(ch);
       gmcp_send_char_vitals(ch);
-      if (GET_LEVEL(ch) >= LVL_IMMORT)
+      if (GET_LEVEL(ch) >= LVL_IMMORT) {
+        /* Save first: autowiz reads levels from the player file. */
+        save_char(ch);
         run_autowiz();
+      }
     }
   }
 }

@@ -71,6 +71,7 @@ ACMD(do_advance);
 ACMD(do_alias);
 ACMD(do_assist);
 ACMD(do_at);
+ACMD(do_autowiz);
 ACMD(do_backstab);
 ACMD(do_ban);
 ACMD(do_bash);
@@ -230,6 +231,7 @@ cpp_extern const struct command_info cmd_info[] = {
   { "auction"  , POS_SLEEPING, do_gen_comm , 0, SCMD_AUCTION },
   { "autoassist", POS_DEAD    , do_gen_tog  , 0, SCMD_AUTOASSIST },
   { "autoexit" , POS_DEAD    , do_gen_tog  , 0, SCMD_AUTOEXIT },
+  { "autowiz"  , POS_DEAD    , do_autowiz  , LVL_GRGOD, 0 },
 
   { "bounce"   , POS_STANDING, do_action   , 0, 0 },
   { "backstab" , POS_STANDING, do_backstab , 1, 0 },
